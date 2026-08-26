@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hey qué tal wachín</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #363131;
+      text-align: center;
+    }
+
+    header {
+      background: #f66105;
+      padding: 30px 15px;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      font-size: 36px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    header a:hover {
+      color: #dd0a07;
+    }
+
+    main {
+      padding: 35px 20px;
+    }
+
+    .galeria {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .galeria img {
+      width: 300px;
+      max-width: 90%;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgb(244, 242, 242);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="https://es.pornhub.com/" target="_blank" rel="noopener noreferrer">
+      que tal wachín?
+    </a>
+  </header>
+
+  <main>
+    <h2 style="color: orange;">Mira mira como baila el wachin</h2>
+    
+
+    <div class="galeria">
+      <img src="https://www.image2url.com/r2/default/gifs/1787479471510-96c11a96-c36b-4008-9a8b-5b544af95b67.gif" alt="GIF de ejemplo">
+    </div>
+
+    <h2 style="color: orange;">Para q abris fracasado</h2>
+  </main>
+<script>
+/*
+  Historial local de visitas.
+
+  ?k=nombre       -> registra una visita con esa clave.
+  ?mostrar        -> muestra el historial guardado en ESTE navegador.
+
+  IMPORTANTE:
+  Un HTML estático no puede guardar un historial centralizado para todos
+  los visitantes ni escribir ip.json en el servidor. Para eso hace falta
+  un backend. Esta versión usa localStorage como alternativa local.
+*/
+
+async function obtenerIP() {
+    try {
+        const respuesta = await fetch("https://api.ipify.org?format=json");
+        const datos = await respuesta.json();
+        return datos.ip;
+    } catch (error) {
+        return "IP no disponible";
+    }
+}
+
+async function registrarVisita() {
+    const params = new URLSearchParams(window.location.search);
+
+    // "mostrar" se activa escribiendo ?mostrar en la URL.
+    if (params.has("mostrar")) {
+        mostrarHistorial();
+        return;
+    }
+
+    const clave = params.get("k") || "visita";
+
+    const ip = await obtenerIP();
+    const ahora = new Date();
+
+    const visita = {
+        clave: clave,
+        ip: ip,
+        fecha: ahora.toLocaleDateString(),
+        hora: ahora.toLocaleTimeString(),
+        timestamp: ahora.toISOString()
+    };
+
+    const historial = JSON.parse(
+        localStorage.getItem("historialVisitas") || "[]"
+    );
+
+    historial.push(visita);
+
+    localStorage.setItem(
+        "historialVisitas",
+        JSON.stringify(historial)
+    );
+
+    console.log("Visita registrada:", visita);
+}
+
+function mostrarHistorial() {
+    const historial = JSON.parse(
+        localStorage.getItem("historialVisitas") || "[]"
+    );
+
+    const contenedor = document.createElement("div");
+
+    contenedor.style.cssText = `
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 25px;
+        background: #222;
+        color: white;
+        border-radius: 15px;
+        font-family: Arial, sans-serif;
+        text-align: left;
+    `;
+
+    const titulo = document.createElement("h2");
+    titulo.textContent = "Historial de visitas";
+    titulo.style.color = "orange";
+    contenedor.appendChild(titulo);
+
+    if (historial.length === 0) {
+        const vacio = document.createElement("p");
+        vacio.textContent = "No hay visitas registradas en este navegador.";
+        contenedor.appendChild(vacio);
+    } else {
+        historial.slice().reverse().forEach((visita, indice) => {
+            const item = document.createElement("div");
+
+            item.style.cssText = `
+                padding: 15px;
+                margin: 10px 0;
+                background: #363131;
+                border-radius: 10px;
+            `;
+
+            item.innerHTML = `
+                <b>Visita ${historial.length - indice}</b><br>
+                IP: <b>${visita.ip}</b><br>
+                Clave: ${visita.clave}<br>
+                Fecha: ${visita.fecha}<br>
+                Hora: ${visita.hora}
+            `;
+
+            contenedor.appendChild(item);
+        });
+    }
+
+    const limpiar = document.createElement("button");
+    limpiar.textContent = "Borrar historial";
+    limpiar.style.cssText = `
+        margin-top: 15px;
+        padding: 10px 15px;
+        cursor: pointer;
+    `;
+
+    limpiar.onclick = () => {
+        localStorage.removeItem("historialVisitas");
+        location.reload();
+    };
+
+    contenedor.appendChild(limpiar);
+    document.body.appendChild(contenedor);
+}
+
+registrarVisita();
+</script>
+
+</body>
+</html>
